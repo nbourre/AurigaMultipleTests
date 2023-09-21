@@ -1,21 +1,10 @@
 /**
- * \par Copyright (C), 2012-2016, MakeBlock
- * @file    ColorLoopTest.ino
- * @author  MakeBlock
+ * @file    AurigaMultipleTests.ino
+ * @author  Nicolas Bourré
  * @version V1.0.0
- * @date    2015/09/02
- * @brief   Description: this file is sample code for RGB LED, It used for random color change
+ * @date    2020/04/01
+ * @brief   Description: this file is sample code for RGB LED, gyro, temperature.
  *
- * Function List:
- * 1. bool MeRGBLed::setColorAt(uint8_t index, uint8_t red, uint8_t green, uint8_t blue)
- * 2. void MeRGBLed::show()
- * 3. void MeRGBLed::setpin(uint8_t port)
- * \par History:
- * <pre>
- * <Author>     <Time>        <Version>      <Descr>
- * Mark Yan     2015/09/02    1.0.0          rebuild the old lib
- * Gregory Toto 2017/03/01    1.0.1          added Auriga support
-</pre>
  */
 
 #include <MeAuriga.h>
@@ -42,6 +31,9 @@ MeRGBLed led( PORT_3 );
 
 MeSoundSensor mySound(PORT_6);
 MeGyro gyro(0, 0x69);
+
+unsigned long gyroPrintPrevious  = 0;
+unsigned int gyroPrintDelay = 200;
 
 const int tempPin = A0;
 int tempSensorValue = 0;
@@ -76,9 +68,9 @@ void loop()
   pt = ct;
   
   led_loop_task();
-  measure_sound();
+  //measure_sound();
   
-  //gyro_task();
+  gyro_task();
   temp_task();  
   show_text();
 }
@@ -111,13 +103,18 @@ void gyro_task() {
   gyro_acc = 0;
   
   gyro.update();
-  Serial.print("X:");
-  Serial.print(gyro.getAngleX() );
-  Serial.print(" Y:");
-  Serial.print(gyro.getAngleY() );
-  Serial.print(" Z:");
-  Serial.println(gyro.getAngleZ() );
 
+  if (ct - gyroPrintPrevious > gyroPrintDelay) {
+    gyroPrintPrevious = ct;
+
+    Serial.print("X:");
+    Serial.print(gyro.getAngleX() );
+    Serial.print(" Y:");
+    Serial.print(gyro.getAngleY() );
+    Serial.print(" Z:");
+    Serial.println(gyro.getAngleZ() );
+
+  }
 }
 
 
@@ -138,6 +135,9 @@ void show_text() {
 
   Serial.print("\tTemperature = ");
   Serial.print(tempOutput);
+
+  Serial.print("\tPower = ");
+  Serial.print(analogRead(A4));
 
   Serial.println();
 }
