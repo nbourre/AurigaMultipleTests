@@ -86,6 +86,20 @@ void loop() {
   currentTime = millis();
   blinkTask(currentTime);
   displayTask(currentTime);
+  serialTask(currentTime);
+}
+
+void serialTask(unsigned long time){
+  static unsigned long lastTime = 0;
+  static int rate = 1000;
+  static short ledState = LOW;
+
+  if (time - lastTime < rate) return;
+
+  lastTime = time;
+
+  Serial.println (time);
+
 }
 
 void blinkTask(unsigned long time) {
@@ -99,6 +113,8 @@ void blinkTask(unsigned long time) {
 
   digitalWrite (s1Pin, ledState);
   digitalWrite (s2Pin, !ledState);
+
+  digitalWrite (LED_BUILTIN, ledState);
 
   ledState = !ledState;
 }
